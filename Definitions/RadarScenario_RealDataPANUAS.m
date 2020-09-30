@@ -155,12 +155,33 @@ classdef RadarScenario_RealDataPANUAS < handle
             
         end
         
-        function viewTargets(RadarScenario)
-            % Show 3-D scatter plot of target locations
-            figure('Name', 'Target 3D Scatter Plot')
-            scatter3(RadarScenario.target_list.pos(1,:), ...
-                RadarScenario.target_list.pos(2,:), ...
-                RadarScenario.target_list.pos(3,:))
+        function viewCalRange(RadarScenario)
+            figure('Name', 'Uncalibrated Power vs Range')
+            plot(RadarScenario.cube.range_axis, ...
+                20*log10(sum(abs(RadarScenario.cube.range_cube(:,ceil(end/2),:,:)), [3 4])));
+            title('Uncalibrated Power vs Range')
+            grid on
+            xlabel('Range [m]')
+            ylabel('Power [dB]')
+        end
+        
+        function viewCalCube(RadarScenario)
+            figure('Name', 'Calibration Data')
+            subplot(2, 1, 1)
+            plot(20*log10(squeeze(abs(RadarScenario.cal))'))
+            title('Calibration Amplitude')
+            legend('Tx1', 'Tx2', 'Tx3', 'Tx4')
+            xlabel('Rx channel')
+            ylabel('Relative Amplitude [dB]')
+            grid on
+            
+            subplot(2, 1, 2)
+            plot(squeeze((180/pi)*angle(RadarScenario.cal))')
+            title('Calibration Phase')
+            legend('Tx1', 'Tx2', 'Tx3', 'Tx4')
+            xlabel('Rx channel')
+            ylabel('Relative Phase Angle [deg]')
+            grid on
         end
         
         function viewRDCube(RadarScenario, graphType)

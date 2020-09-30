@@ -1,13 +1,13 @@
-%% PANUAS Radar System - End of Simulation Tasks
+%% PANUAS Radar System - End of Process Tasks
 %{
 
     Sean Holloway
-    PANUAS End-of-Simulation Tasks
+    PANUAS End-of-Process Tasks
 
-    Container script which saves output files from PANUAS simulation,and
+    Container script which saves output files from PANUAS processing, and
     sends alert email.
 
-    For use in FullSystem_PANUAS without automated simulation.
+    For use in FullSystem_RealDataPANUAS without automated simulation.
     
 %}
 
@@ -18,11 +18,11 @@ toc
 %% Save Files and Figures
 
 % Establish file name
-save_name = [scenario.simsetup.filename, '_', datestr(now, 'mmddyy_HHMM')];
+save_name = [scenario.simsetup.file_in, '_', datestr(now, 'mmddyy_HHMM')];
 
 % Establish filepaths for saving
 mat_path = 'MAT Files\Scenario Objects\';
-fig_path = ['Figures\', save_name, '\'];
+fig_path = ['Figures\', scenario.simsetup.out_path, '\'];
 
 % Save scenario object if chosen
 if scenario.simsetup.save_mat

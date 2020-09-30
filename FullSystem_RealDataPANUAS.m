@@ -8,25 +8,23 @@
     This shell file runs successive scripts and gauges progress.
 
     TODO: 
-    - Implement
-    - Break Main into loop
-    - Comment data format in Parsing script
-    - Move inputs from parsing to file
-    - Automatically obtain corner reflector range bin
-    - Split file name into directory + name
-    - Fix MIMO arrangement
-    - Calibrate if no calibration data found
+        - Signal Processing Path:
+            + Throw warning if no calibration data found
+            + Updates
+            + Read/scan through
+            + Commnet
+            + Move MIMO arrangement to setup
+        - Full System
+            + End of processing tasks
+        - Full System Auto
+            + Implement loop
+        - Human readible interface
 
-    DOCUMENT:
-    - Main
-    - Data Parsing
 %}
 
 %% Housekeeping
 
-file_in = 'test_0918_115303_60m'
-
-% clear variables
+clear variables
 close all
 addpath(genpath(pwd));
 tic
@@ -38,10 +36,10 @@ scenario = RadarScenario_RealDataPANUAS;
 
 %% Setup Structures for Simulation
 
-% Set up simulation parameters
-SetupSimulation_RealDataPANUAS
+% Set up processing parameters
+SetupProcessing_RealDataPANUAS
 
-% Set up transceiver and channel parameters
+% Set up transceiver and waveform parameters
 SetupRadarScenario_RealDataPANUAS
 
 %% Run Simulation & Signal Processing
@@ -57,10 +55,7 @@ end
 %% Save and Package Resultant Data
 
 % Run all end-of-simulation tasks
-EndSimulationSingle_RealDataPANUAS
-
-%DEBUG: OUTPUT PLOTS
-Scratch3
+EndProcess_RealDataPANUAS
 
 
 

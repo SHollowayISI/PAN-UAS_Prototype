@@ -1,6 +1,8 @@
 function [scenario] = DataParsing_RealDataPANUAS(scenario)
 %DATAPARSING_REALDATAPANUAS Parses data form PAN-UAS Prototype
-%   Detailed explanation goes here
+%   Takes scenario object as input, returns scenario object with
+%   .parsed_data field included. Output data is in fast time x slow time x
+%   tx channel x rx channel format.
 
 %% Unpack Variables
 

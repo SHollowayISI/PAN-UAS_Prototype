@@ -1,7 +1,8 @@
 function [cube] = SignalProcessing_Calibration_RealDataPANUAS(scenario)
-%SIGNALPROCESSING_CALIBRATION_REALDATAPANUAS Performs signal processing for PANUAS
+%SIGNALPROCESSING_CALIBRATION_REALDATAPANUAS Performs signal processing for
+%PANUAS calibration
 %   Takes scenario struct as input, retuns scenario.cube struct containing
-%   processed Range-Doppler cube
+%   processed Range-Doppler cube.
 
 %% Unpack Variables
 
@@ -49,11 +50,6 @@ cube.rd_cube = fftshift(fft(cube.rd_cube, N_d, 2), 2);
 
 % Wrap max negative frequency and positive frequency
 cube.rd_cube(:,(end+1),:,:) = cube.rd_cube(:,1,:,:);
-
-%% Calculate Power Cube
-
-% Take square magnitude of radar cube
-cube.pow_cube = abs(cube.rd_cube).^2;
 
 %% Derive Axes
 

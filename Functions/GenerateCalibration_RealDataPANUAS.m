@@ -1,6 +1,8 @@
 function [cal] = GenerateCalibration_RealDataPANUAS(scenario)
-%GENERATECALIBRATION_REALDATAPANUAS Summary of this function goes here
-%   Detailed explanation goes here
+%GENERATECALIBRATION_REALDATAPANUAS Generates calibration cube from
+%range-doppler cube
+%   Takes scenario object as input, returns .cal field and saves to mat
+%   file. Uses magnitude and phase at simsetup.cal_bin.
 
 %% Generate Calibration Cube
 
@@ -18,7 +20,7 @@ cal = cal/(ref_mag*ref_ang);
 
 
 %% Save to .mat file
-save(scenario.simsetup.cal_file, 'cal');
+save(['MAT Files\Calibration\', scenario.simsetup.cal_file, '.mat'], 'cal');
 
 end
 

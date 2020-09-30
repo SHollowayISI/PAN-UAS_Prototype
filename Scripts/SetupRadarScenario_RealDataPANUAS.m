@@ -2,11 +2,11 @@
 %{
 
     Sean Holloway
-    PANUAS Init File
+    PANUAS Radar Init File
     
-    This file specifies radar parameters for PANUAS simulation.
+    This file specifies radar parameters for PANUAS processing.
 
-    Use script 'FullSystem_PANUAS.m' to run scenarios.
+    Use script 'FullSystem_RealDataPANUAS.m' to run scenarios.
     
 %}
 
