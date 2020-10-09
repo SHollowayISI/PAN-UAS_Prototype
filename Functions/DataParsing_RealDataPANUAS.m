@@ -19,7 +19,6 @@ read_filename = [simsetup.file_in, '.bin'];
 
 fileID = fopen(read_filename,'r');
 outbuff = fread(fileID, [num_channels, Inf], 'int16');
-% outbuff = fread(fileID, [num_channels, Inf], radarsetup.data_type);
 
 %% Bitwise operations on channels
 
@@ -32,7 +31,6 @@ Tx(1,:) = bitget(outbuff(2,:), 2, radarsetup.data_type);
 Tx(2,:) = bitget(outbuff(2,:), 1, radarsetup.data_type);
 Tx(3,:) = bitget(outbuff(3,:), 2, radarsetup.data_type);
 Tx(4,:) = bitget(outbuff(3,:), 1, radarsetup.data_type);
-% Tx_total = bi2de(Tx', 'left-msb');
 
 % Clear LSB data
 outbuff = bitset(outbuff, 1, 0, radarsetup.data_type);
@@ -62,7 +60,6 @@ end
 
 % Throw out indices that don't complete Tx cycle
 start_ind = start_ind(1:(4*floor(length(start_ind)/4)));
-% stop_ind = stop_ind(1:(4*floor(length(stop_ind)/4)));
 
 % Initialize data container
 scenario.parsed_data = zeros(radarsetup.n_s - radarsetup.drop_s, length(start_ind), num_channels);

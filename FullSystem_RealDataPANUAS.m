@@ -9,10 +9,12 @@
 
     TODO: 
         - Signal Processing Path:
+            + Implement frame-level loop
             + Throw warning if no calibration data found
+            + Save cube each CPI
             + Updates
             + Read/scan through
-            + Commnet
+            + Comment
             + Move MIMO arrangement to setup
         - Full System
             + End of processing tasks

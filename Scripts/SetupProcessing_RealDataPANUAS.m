@@ -23,9 +23,9 @@ scenario.simsetup = struct( ...
     'file_out',     'Test_09302020', ...                % Output figure filename
     ...
     ... % Calibration Options
-    'calibrate',    true, ...                   % Perform calibration T/F
-    'cal_bin',      61, ...                     % Range bin containing corner reflector
-    'cal_file',     'temp_cal', ...             % Name of calibration file to read/write
+    'calibrate',    false, ...                              % Perform calibration T/F
+    'cal_bin',      61, ...                                 % Range bin containing corner reflector
+    'cal_file',     'test_0918_115843_25m_wall.mat', ...    % Name of calibration file to read/write
     ...
     ... % Simulation Properties
     'num_frames',   1, ...                      % Number of radar frames to simulate
