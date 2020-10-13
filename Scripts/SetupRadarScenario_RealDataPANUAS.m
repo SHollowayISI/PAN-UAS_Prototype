@@ -23,7 +23,7 @@ scenario.radarsetup = struct( ...
     'bw',           100e6, ...              % Chirp bandwidth in Hz
     'n_p',          1024, ...               % Number of (MIMO) chirps per CPI
     'drop_s',       125, ...                % Number of samples to drop
-    'cpi_fr',       Inf, ...                % Number of CPI per frame
+    'cpi_fr',       1, ...                % Number of CPI per frame
     'warmup_s',     10000, ...              % Number of samples to drop at beginning of file
     'data_type',    'int16', ...            % Input value data type
     'mimo_type',    'TDM', ...              % Set 'TDM' or 'CDM'

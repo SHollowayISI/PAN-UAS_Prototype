@@ -17,12 +17,12 @@ off_s = 137.5;
 num_channels = 16;
 data_type = 'int16';
 
-num_chirps = Inf;
+num_chirps = 100;
 
 
 %% Load .bin file
 
-read_filename = 'Input Data/Test 09182020/test_0918_115303_60m.bin';
+read_filename = 'Input Data/Test 10132020/drone2_corner_reflect_1013_111521.bin';
 
 sample_max = floor(4 * num_chirps * (n_s + off_s) + warmup_s);
 
@@ -102,6 +102,7 @@ for n = 1:4
         
         subplot(4,4,m)
         plot(parsed_data(:,plot_ind,n,m));
+        ylim([-8000 8000])
         
         str_title = sprintf('Rx%d', m);
         title(str_title)
