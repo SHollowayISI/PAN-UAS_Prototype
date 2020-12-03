@@ -22,7 +22,7 @@ cal = cal/(ref_mag*ref_ang);
 cal = cal./abs(cal);
 
 %% Save to .mat file
-save(['MAT Files\Calibration\', scenario.simsetup.cal_file, '.mat'], 'cal');
+save(['MAT Files\Calibration\', scenario.simsetup.cal_file], 'cal');
 
 end
 
