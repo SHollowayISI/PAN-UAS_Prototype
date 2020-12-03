@@ -18,14 +18,14 @@ save_format.list = {'.png'};
 % Radar simulation and processing setup
 scenario.simsetup = struct( ...
     ... % Data Processing Options
-    'file_in',      'test_0918_115303_60m', ...         % Input data filename
-    'in_path',      'Input Data\Test 09182020\', ...    % Input filepath
-    'file_out',     'Test_09302020', ...                % Output figure filename
+    'file_in',      'drone_50m_dist_movingfastng_coming_1201_144846', ...         % Input data filename
+    'in_path',      'Input Data\drone_5\', ...    % Input filepath
+    'file_out',     'drone_5', ...                % Output figure filename
     ...
     ... % Calibration Options
     'calibrate',    false, ...                              % Perform calibration T/F
-    'cal_bin',      61, ...                                 % Range bin containing corner reflector
-    'cal_file',     'test_0918_115843_25m_wall.mat', ...    % Name of calibration file to read/write
+    'cal_bin',      284, ...                                 % Range bin containing corner reflector
+    'cal_file',     '1125_25MHz_wall_phase', ...    % Name of calibration file to read/write
     ...
     ... % Simulation Properties
     'num_frames',   1, ...                      % Number of radar frames to simulate

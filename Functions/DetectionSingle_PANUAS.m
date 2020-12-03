@@ -8,57 +8,70 @@ function [detection] = DetectionSingle_PANUAS(scenario)
 detection = scenario.detection;
 radarsetup = scenario.radarsetup;
 cube = scenario.cube;
-flags = scenario.flags;
 
 %% Perform Detection
 
-% Sum across angle slices
-rd_cube = sum(cube.pow_cube, [3 4]);
-
 % Estimate noise power
-detection.noise_pow = pow2db(median(mean(rd_cube), 'all'));
+detection.noise_pow = pow2db(median(mean(cube.pow_cube, 1), 'all'));
 
-switch radarsetup.detect_type
-    case 'threshold'
-        %% Perform Threshold Detection
+% Generate detection cube
+detection.detect_cube = zeros(size(cube.pow_cube));
+
+% Determine angle slices to sweep
+az_list = intersect(find(scenario.cube.azimuth_axis >= radarsetup.az_limit(1)), find(scenario.cube.azimuth_axis <= radarsetup.az_limit(2)));
+el_list = intersect(find(scenario.cube.elevation_axis >= radarsetup.el_limit(1)), find(scenario.cube.elevation_axis <= radarsetup.el_limit(2)));
+
+
+% Loop across angle slices
+for az_slice = az_list
+    for el_slice = el_list
         
-        % Calculate threshold in absolute
-        abs_thresh = db2pow(radarsetup.thresh + detection.noise_pow);
+        rd_cube = cube.pow_cube(:,:,az_slice,el_slice);
         
-        % Perform detection
-        detection.detect_cube = (rd_cube > abs_thresh);
-        
-    case 'CFAR'
-        %% Perform CFAR Detection
-        
-        % Set up index map
-        [n_rng, n_dop] = size(rd_cube);
-        pad = radarsetup.num_guard + radarsetup.num_train;
-        rng_ax = (pad(1) + 1):(n_rng-pad(1));
-        dop_ax = (pad(2) + 1):(n_dop-pad(2));
-        
-        idx = [];
-        idx(1,:) = repmat(rng_ax, 1, length(dop_ax));
-        idx(2,:) = reshape(repmat(dop_ax, length(rng_ax), 1), 1, []);
-        
-        % Perform CFAR detection
-        cfar_out = scenario.sim.CFAR(rd_cube, idx);
-        
-        % Reshape to radar cube size
-        cfar_out = reshape(cfar_out, length(rng_ax), length(dop_ax));
-        cfar_out = [zeros(pad(1), length(dop_ax)); cfar_out; zeros(pad(1), length(dop_ax))];
-        cfar_out = [zeros(n_rng, pad(2)), cfar_out, zeros(n_rng, pad(2))];
-        
-        % Perform image dilation
-        if radarsetup.dilate
-            se = strel('disk', 1);
-            cfar_out = imdilate(cfar_out, se);
+        switch radarsetup.detect_type
+            case 'threshold'
+                %% Perform Threshold Detection
+                
+                % Calculate threshold in absolute
+                abs_thresh = db2pow(radarsetup.thresh + detection.noise_pow);
+                
+                % Perform detection
+                detection.detect_cube = (cube.pow_cube > abs_thresh);
+                
+            case 'CFAR'
+                %% Perform CFAR Detection
+                
+                % Set up index map
+                rng_ax = intersect(find(cube.range_axis >= radarsetup.rng_limit(1)), ...
+                    find(cube.range_axis <= radarsetup.rng_limit(2)));
+                rng_ax = rng_ax(rng_ax >  (radarsetup.num_guard(1) + radarsetup.num_train(1)));
+                dop_ax = intersect(find(abs(cube.vel_axis) >= radarsetup.vel_limit(1)), ...
+                    find(abs(cube.vel_axis) <= radarsetup.vel_limit(2)));
+                
+                idx = [];
+                idx(1,:) = repmat(rng_ax, 1, length(dop_ax));
+                idx(2,:) = reshape(repmat(dop_ax, length(rng_ax), 1), 1, []);
+                
+                % Perform CFAR detection
+                cfar_out = scenario.sim.CFAR(rd_cube, idx);
+                cfar_out = reshape(cfar_out, length(rng_ax), length(dop_ax));
+                
+                % Perform image dilation
+                if radarsetup.dilate
+                    se = strel('line', 3, 90);
+                    cfar_out = imdilate(cfar_out, se);
+                end
+                
+                % Save detection cube
+                detection.detect_cube(rng_ax,dop_ax,az_slice,el_slice) = cfar_out;
+                
         end
-        
-        % Save detection cube
-        detection.detect_cube = cfar_out;
-        
+    end
 end
+
+% Wrap ends of angle FFT
+detection.detect_cube(:,:,size(cube.pow_cube, 3),:) = detection.detect_cube(:,:,1,:);
+detection.detect_cube(:,:,:,size(cube.pow_cube, 4)) = detection.detect_cube(:,:,:,1);
 
 %% Update Multiple CPI List
 

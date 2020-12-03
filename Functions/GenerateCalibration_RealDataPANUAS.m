@@ -18,6 +18,8 @@ ref_ang = cal(1)/abs(cal(1));
 % Normalize relative to channel (1,1)
 cal = cal/(ref_mag*ref_ang);
 
+%DEBUG: PHASE ONLY
+cal = cal./abs(cal);
 
 %% Save to .mat file
 save(['MAT Files\Calibration\', scenario.simsetup.cal_file, '.mat'], 'cal');

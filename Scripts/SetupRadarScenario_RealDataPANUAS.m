@@ -21,9 +21,9 @@ scenario.radarsetup = struct( ...
     't_ch',         50e-6, ...              % Chirp duration in seconds
     'pri',          55.5e-6, ...            % Interval between successive chirps
     'bw',           100e6, ...              % Chirp bandwidth in Hz
-    'n_p',          1024, ...               % Number of (MIMO) chirps per CPI
+    'n_p',          512, ...               % Number of (MIMO) chirps per CPI
     'drop_s',       125, ...                % Number of samples to drop
-    'cpi_fr',       Inf, ...                % Number of CPI per frame
+    'cpi_fr',       8, ...                  % Number of CPI per frame
     'warmup_s',     10000, ...              % Number of samples to drop at beginning of file
     'data_type',    'int16', ...            % Input value data type
     'mimo_type',    'TDM', ...              % Set 'TDM' or 'CDM'
@@ -47,9 +47,13 @@ scenario.radarsetup = struct( ...
     ...
     ... % Detection Properties
     'detect_type',  'CFAR', ...         % Choose 'CFAR' or 'threshold'
-    'CFAR_Pfa',     0.1, ...            % CFAR false alarm probability
-    'num_guard',    [5 5], ...          % Number of R-D guard cells for CFAR detection
-    'num_train',    [25 25], ...        % Number of R-D training cells for CFAR detection
+    'CFAR_Pfa',     1e-9, ...            % CFAR false alarm probability
+    'num_guard',    [3 1], ...          % Number of R-D guard cells for CFAR detection
+    'num_train',    [15 2], ...        % Number of R-D training cells for CFAR detection
+    'rng_limit',    [0 300], ...        % Minimum/maximum range to search
+    'vel_limit',    [0 30], ...         % Minimum/maximum absolute value of velocity
+    'az_limit',     [-15 15], ...       % Maximum angle to search in azimuth
+    'el_limit',     [0 30.1], ...       % Maximum angle to search in elevation
     'dilate',       false, ...           % T/F dilate raw CFAR result to avoid duplicates   
     'det_m',        2);                 % M for m-of-n binary integration
 
@@ -90,6 +94,21 @@ scenario.sim.CFAR = phased.CFARDetector2D( ...
     'GuardBandSize',            scenario.radarsetup.num_guard, ...
     'TrainingBandSize',         scenario.radarsetup.num_train);
 
+% Set up virtual array for beamformer AoA
+n_y = scenario.radarsetup.n_tx_y * scenario.radarsetup.n_rx_y;
+n_z = scenario.radarsetup.n_tx_z * scenario.radarsetup.n_rx_z;
+
+scenario.sim.virtual_array = phased.URA( ...
+    'Size',                     [n_z, n_y], ...
+    'ElementSpacing',           scenario.radarsetup.d_rx);
+
+% Set up 2D beamformer
+scenario.sim.AoA = phased.BeamscanEstimator2D( ...
+    'SensorArray',              scenario.sim.virtual_array, ...
+    'OperatingFrequency',       scenario.radarsetup.f_c, ...
+    'AzimuthScanAngles',        -90:1:90, ...
+    'ElevationScanAngles',      -90:1:90, ...
+    'DOAOutputPort',            true);
 
 
 

@@ -31,11 +31,11 @@ classdef RadarScenario_RealDataPANUAS < handle
             
             % Initialize flags
             RadarScenario.flags = struct( ...
-            'cpi',                  0, ...
-            'frame',                0, ...
-            'out_of_data',          false);
+                'cpi',                  0, ...
+                'frame',                0, ...
+                'out_of_data',          false);
         end
-       
+        
         function generateCoordinates(RadarScenario)
             %Generate Input Coordinate Grid
             [range_grid, azimuth_grid, elevation_grid] = meshgrid( ...
@@ -119,8 +119,8 @@ classdef RadarScenario_RealDataPANUAS < handle
         end
         
         function readOut(RadarScenario)
-%             fprintf('\nMaximum SNR: %0.1f [dB]\n', ...
-%                 RadarScenario.detection.max_SNR);
+            %             fprintf('\nMaximum SNR: %0.1f [dB]\n', ...
+            %                 RadarScenario.detection.max_SNR);
             
             num_detect = RadarScenario.detection.detect_list.num_detect;
             
@@ -139,8 +139,10 @@ classdef RadarScenario_RealDataPANUAS < handle
                         RadarScenario.detection.detect_list.vel(n));
                     fprintf('Azimuth Angle: %0.1f [deg]\n', ...
                         RadarScenario.detection.detect_list.az(n));
-                    fprintf('Elevation Angle: %0.1f [deg]\n\n', ...
+                    fprintf('Elevation Angle: %0.1f [deg]\n', ...
                         RadarScenario.detection.detect_list.el(n));
+                    fprintf('SNR: %0.1f [dB]\n\n', ...
+                        RadarScenario.detection.detect_list.SNR(n));
                 end
             else
                 disp('No Targets Detected');
@@ -158,11 +160,22 @@ classdef RadarScenario_RealDataPANUAS < handle
         function viewCalRange(RadarScenario)
             figure('Name', 'Uncalibrated Power vs Range')
             plot(RadarScenario.cube.range_axis, ...
-                20*log10(sum(abs(RadarScenario.cube.range_cube(:,ceil(end/2),:,:)), [3 4])));
+                10*log10(squeeze(sum(abs(RadarScenario.cube.rd_cube(:,ceil(end/2),:,:)).^2, 3))));
+            grid on;
             title('Uncalibrated Power vs Range')
             grid on
             xlabel('Range [m]')
             ylabel('Power [dB]')
+            
+            figure('Name', 'Uncalibrated Power vs Range - Combined Channels')
+            plot(RadarScenario.cube.range_axis, ...
+                10*log10(sum(sum(abs(RadarScenario.cube.rd_cube(:,ceil(end/2),:,:)).^2, 3),4)));
+            grid on;
+            title('Uncalibrated Power vs Range - Combined Channels')
+            grid on
+            xlabel('Range [m]')
+            ylabel('Power [dB]')
+            
         end
         
         function viewCalCube(RadarScenario)
@@ -317,7 +330,7 @@ classdef RadarScenario_RealDataPANUAS < handle
                         track_list{n}.det_list(3,:), ...
                         'r', '+');
                     hold on;
-                % Line of track if not
+                    % Line of track if not
                 else
                     scatter3(track_list{n}.det_list(1,:), ...
                         track_list{n}.det_list(2,:), ...
@@ -342,7 +355,7 @@ classdef RadarScenario_RealDataPANUAS < handle
             ylabel('Cross Range Distance [m]', 'FontWeight', 'bold')
             zlabel('Altitude [m]', 'FontWeight', 'bold')
         end
-             
+        
     end
 end
 

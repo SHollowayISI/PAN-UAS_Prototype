@@ -47,6 +47,7 @@ stop_ind = find(diff(sync_stop) > 0);
 start_ind = start_ind(start_ind > radarsetup.warmup_s);
 stop_ind = stop_ind(stop_ind > start_ind(1));
 start_ind = start_ind(start_ind < stop_ind(end));
+start_ind = start_ind(start_ind < (size(outbuff, 2) - radarsetup.n_s));
 
 % Throw out indices until starting on first Tx channel
 while true
@@ -61,6 +62,29 @@ end
 % Throw out indices that don't complete Tx cycle
 start_ind = start_ind(1:(4*floor(length(start_ind)/4)));
 
+% Find duplicate stops
+donebool = false;
+
+while not(donebool)
+    min_len = min(length(stop_ind), length(start_ind));
+    diff_ind = stop_ind(1:min_len) - start_ind(1:min_len);
+    bad_ind = find(diff_ind < 0, 1);
+    
+    if isempty(bad_ind)
+        donebool = true;
+    else
+        stop_ind(bad_ind) = [];
+    end
+end
+
+% Remove duplicates at end
+stop_ind = stop_ind(1:min_len);
+start_ind = start_ind(1:min_len);
+diff_ind = stop_ind - start_ind;
+
+% Find overruns to be set to zero
+interp_ind = find(diff_ind < radarsetup.n_s);
+
 % Initialize data container
 scenario.parsed_data = zeros(radarsetup.n_s - radarsetup.drop_s, length(start_ind), num_channels);
 
@@ -69,10 +93,33 @@ ind = start_ind + (radarsetup.drop_s:(radarsetup.n_s-1))';
 ind = ind(:);
 
 % Obtain data from buffer
-scenario.parsed_data = reshape(outbuff(:,ind), num_channels, radarsetup.n_s - radarsetup.drop_s, []);
+scenario.parsed_data = outbuff(:,ind);
+scenario.parsed_data = reshape(scenario.parsed_data, num_channels, radarsetup.n_s - radarsetup.drop_s, []);
+
+% Shape data
 scenario.parsed_data = reshape(scenario.parsed_data, num_channels, ...
-    radarsetup.n_s-radarsetup.drop_s, 4, []);
+    radarsetup.n_s - radarsetup.drop_s, 4, []);
 scenario.parsed_data = permute(scenario.parsed_data, [2 4 3 1]);
+
+%DEBUG: FIX BIT FLIP
+% scenario.parsed_data(:,:,:,11) = mod(scenario.parsed_data(:,:,:,11) + 2^11, 2^12) - 2^11;
+
+% Interpolate bad indices
+%{
+for n = interp_ind
+%     scenario.parsed_data(:,(diff_ind(n) - radarsetup.drop_s):end, n) = 0;
+
+    ch_ind = floor((n-1) / 4) + 1;
+    tx_ind = mod(n - 1, 4) + 1;
+    
+    if (ch_ind ~= 1)
+        scenario.parsed_data(:,ch_ind,tx_ind,:) = ...
+            (scenario.parsed_data(:,ch_ind + 1,tx_ind,:) + scenario.parsed_data(:,ch_ind - 1,tx_ind,:))/2;
+    end
+    
+    
+end
+%}
 
 % Clear output buffer to save size
 outbuff = [];

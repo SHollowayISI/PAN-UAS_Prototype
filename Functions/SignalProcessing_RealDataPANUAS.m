@@ -16,7 +16,7 @@ lambda = c/radarsetup.f_c;
 %% Apply Calibration
 
 % Load calibration cube
-cal_cube = load(simsetup.cal_file);
+cal_cube = load([simsetup.cal_file, '.mat']);
 cal_cube = cal_cube.cal;
 
 % Apply calibration
@@ -25,15 +25,15 @@ cal_sig = scenario.rx_sig./cal_cube;
 %% Perform Range FFT
 
 % Calculate FFT Size
-N_r = 2^ceil(log2(size(scenario.rx_sig,1)));
+N_r = 2^ceil(log2(size(cal_sig,1)));
 
 % Apply windowing
-expression = '(size(scenario.rx_sig,1)).*cal_sig;';
+expression = '(size(cal_sig,1)).*cal_sig;';
 expression = [ radarsetup.r_win, expression];
 cube.range_cube = eval(expression);
 
 % FFT across fast time dimension
-cube.range_cube = fft(scenario.rx_sig, N_r, 1);
+cube.range_cube = fft(cube.range_cube, N_r, 1);
 
 % Remove negative complex frequencies
 cube.range_cube = cube.range_cube(1:ceil(end/2),:,:,:);
@@ -59,6 +59,9 @@ cube.rd_cube = fftshift(fft(cube.rd_cube, N_d, 2), 2);
 % Wrap max negative frequency and positive frequency
 cube.rd_cube(:,(end+1),:,:) = cube.rd_cube(:,1,:,:);
 
+
+%NOTE: CURRENTLY IN DEBUG MODE TO GET DATA FOR 10/12/2020 TEST
+%
 %% Rearrange MIMO Cube
 
 % Layout arrays
@@ -97,13 +100,14 @@ if simsetup.clear_cube
     cube.rd_cube = [];
 end
 
+
 %% Perform Angle FFTs
 
 % Calculate FFT size 
 switch radarsetup.angle_method
     case 'fit'
-        N_az = 2^ceil(log2(size(cube.mimo_cube, 3)));
-        N_el = 2^ceil(log2(size(cube.mimo_cube, 4)));
+        N_az = 2^ceil(log2(size(cube.mimo_cube, 4)));
+        N_el = 2^ceil(log2(size(cube.mimo_cube, 3)));
     case 'set'
         N_az = radarsetup.n_az;
         N_el = radarsetup.n_el;
@@ -111,12 +115,12 @@ end
 
 % Apply azimuth windowing
 expression = '(size(cube.mimo_cube,3)), [2 3 1]).*cube.mimo_cube;';
-expression = ['permute(', radarsetup.az_win, expression];
+expression = ['permute(', radarsetup.el_win, expression];
 cube.angle_cube = eval(expression);
 
 % Apply elevation windowing
 expression = '(size(cube.angle_cube,4)), [2 3 4 1]).*cube.angle_cube;';
-expression = ['permute(', radarsetup.el_win, expression];
+expression = ['permute(', radarsetup.az_win, expression];
 cube.angle_cube = eval(expression);
 
 % Clear MIMO cube
@@ -125,8 +129,8 @@ if simsetup.clear_cube
 end
 
 % FFT across angle dimensions
-cube.angle_cube = fftshift(fft(cube.angle_cube, N_az, 3), 3);
-cube.angle_cube = fftshift(fft(cube.angle_cube, N_el, 4), 4);
+cube.angle_cube = fftshift(fft(cube.angle_cube, N_el, 3), 3);
+cube.angle_cube = fftshift(fft(cube.angle_cube, N_az, 4), 4);
 
 % Wrap max negative frequency and positive frequency
 cube.angle_cube(:,:,(end+1),:) = cube.angle_cube(:,:,1,:);
@@ -141,7 +145,7 @@ cube.pow_cube = abs(cube.angle_cube).^2;
 if simsetup.clear_cube
     cube.angle_cube = [];
 end
-
+%}
 %% Derive Axes
 
 % Derive Range axis
@@ -152,14 +156,14 @@ cube.range_axis = ((1:(N_r/2))-1)*cube.range_res;
 cube.vel_res = lambda/(2*radarsetup.pri*radarsetup.n_p*radarsetup.n_tx_y*radarsetup.n_tx_z);
 cube.vel_axis = ((-N_d/2):(N_d/2))*cube.vel_res;
 
+%
 % Derive Azimuth axis
 cube.azimuth_axis = asind(((-N_az/2):(N_az/2))*(2/N_az));
 cube.azimuth_res = min(abs(diff(cube.azimuth_axis)));
 
-
 % Derive Elevation axis
-cube.elevation_axis = asind(((-N_el/2):(N_el/2))*(2/N_el));
+cube.elevation_axis = -asind(((-N_el/2):(N_el/2))*(2/N_el));
 cube.elevation_res = min(abs(diff(cube.elevation_axis)));
-
+%}
 
 end

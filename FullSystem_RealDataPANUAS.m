@@ -8,6 +8,8 @@
     This shell file runs successive scripts and gauges progress.
 
     TODO: 
+        - ALL:
+            + REMOVE DEBUG CHANGES
         - Signal Processing Path:
             + Implement frame-level loop
             + Throw warning if no calibration data found
