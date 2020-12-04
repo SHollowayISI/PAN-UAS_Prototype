@@ -233,7 +233,70 @@ classdef RadarScenario_RealDataPANUAS < handle
                         ylabel('Range [m]','FontWeight','bold')
                     end
             end
+        end
+        
+        function viewIncoherentCube(RadarScenario, graphType, maxRange)
+            switch graphType
+                case 'heatmap'
+                    figure('Name', 'Range-Doppler Heat Map');
+                    imagesc(RadarScenario.cube.vel_axis, ...
+                        RadarScenario.cube.range_axis, ...
+                        10*log10(RadarScenario.cube.incoherent_cube(:,:,ceil(end/2), ceil(end/2))))
+                    title('Range-Doppler Heat Map')
+                    set(gca,'YDir','normal')
+                    xlabel('Velocity [m/s]','FontWeight','bold')
+                    ylabel('Range [m]','FontWeight','bold')
+                    ylim([0 maxRange])
+                case 'surface'
+                    figure('Name', 'Range-Doppler Surface');
+                    surf(RadarScenario.cube.vel_axis, ...
+                        RadarScenario.cube.range_axis, ...
+                        10*log10(RadarScenario.cube.incoherent_cube(:,:,ceil(end/2), ceil(end/2))), ...
+                        'EdgeColor', 'none')
+                    title('Range-Doppler Surface')
+                    set(gca,'YDir','normal')
+                    xlabel('Velocity [m/s]','FontWeight','bold')
+                    ylabel('Range [m]','FontWeight','bold')
+                    ylim([0 maxRange])
+                    zlabel('FFT Log Intensity [dB]','FontWeight','bold')
+                case 'cal'
+                    figure('Name', 'Range-Doppler Heat Map');
+                    for n = 1:size(RadarScenario.cube.incoherent_cube,3)
+                        subplot(RadarScenario.radarsetup.n_rx_y, ...
+                            RadarScenario.radarsetup.n_rx_z, n);
+                        imagesc(RadarScenario.cube.vel_axis, ...
+                            RadarScenario.cube.range_axis, ...
+                            10*log10(RadarScenario.cube.incoherent_cube(:,:,n)))
+                        title('Range-Doppler Heat Map')
+                        set(gca,'YDir','normal')
+                        xlabel('Velocity [m/s]','FontWeight','bold')
+                        ylabel('Range [m]','FontWeight','bold')
+                        ylim([0 maxRange])
+                    end
+            end
+        end
+        
+        function viewDopplerSwath(scenario, dopplerMinMax, maxRange)
+            figure('Name', 'Zero Doppler Range Plot Broadside');
+            plot(scenario.cube.range_axis, 10*log10(scenario.cube.pow_cube(:, ceil(end/2), ceil(end/2), ceil(end/2))));
+            xlabel('Range [m]','FontWeight','bold');
+            ylabel('FFT Log Intensity [dB]','FontWeight','bold');
+            grid on;
+            grid minor;
+            xlim([0 maxRange])
+            ylim([80 160]);
             
+            dop_ind = intersect(find(abs(scenario.cube.vel_axis) >= dopplerMinMax(1)), ...
+                find(abs(scenario.cube.vel_axis) <= dopplerMinMax(2)));
+            
+            figure('Name', 'Non-Zero Doppler Swath Plot Broadside');
+            plot(scenario.cube.range_axis, 10*log10(mean(scenario.cube.pow_cube(:, dop_ind, ceil(end/2), ceil(end/2)), 2)));
+            xlabel('Range [m]','FontWeight','bold');
+            ylabel('FFT Log Intensity [dB]','FontWeight','bold');
+            grid on;
+            grid minor;
+            xlim([0 maxRange])
+            ylim([60 140]);
         end
         
         function viewRACube(RadarScenario, graphType)
@@ -316,44 +379,135 @@ classdef RadarScenario_RealDataPANUAS < handle
             
         end
         
-        function viewTracking(RadarScenario)
+        function viewTracking(RadarScenario, graphType, showFalseAlarms, showTracks)
+            switch graphType
+                case 'scatter'
+                    % Pass in variables
+                    track_list  = RadarScenario.multi.track_list;
+                    % Generate plot
+                    figure('Name', 'Tracking Results Scatter Plot');
+                    % Add tracks to plot
+                    for n = 1:length(track_list)
+                        % Scatter plot if false alarm
+                        if (track_list{n}.false_alarm && showFalseAlarms)
+                            scatter3(track_list{n}.det_list(1,:), ...
+                                track_list{n}.det_list(2,:), ...
+                                track_list{n}.det_list(3,:), ...
+                                30, 'r', '.');
+                            hold on;
+                            % Line of track if not
+                        else
+                            scatter3(track_list{n}.det_list(1,:), ...
+                                track_list{n}.det_list(2,:), ...
+                                track_list{n}.det_list(3,:), ...
+                                30, 'k', '.');
+                            hold on;
+                            if showTracks
+                                plot3(track_list{n}.est_list(1,:), ...
+                                    track_list{n}.est_list(3,:), ...
+                                    track_list{n}.est_list(5,:), ...
+                                    'g');
+                                hold on;
+                            end
+                        end
+                    end
+                    % Add radar location to plot
+                    scatter3(0, 0, 0, 'filled', 'r');
+                    % Correct plot limits
+                    ax = gca;
+                    ax.YLim = [-ax.XLim(2)/2, ax.XLim(2)/2];
+                    ax.ZLim = [-ax.XLim(2)/2, ax.XLim(2)/2];
+                    % Add labels
+                    xlabel('Down Range Distance [m]', 'FontWeight', 'bold')
+                    ylabel('Cross Range Distance [m]', 'FontWeight', 'bold')
+                    zlabel('Altitude [m]', 'FontWeight', 'bold')
+                case 'PPI'
+                    % Pass in variables
+                    track_list  = RadarScenario.multi.track_list;
+                    % Generate plot
+                    figure('Name', 'Tracking Results PPI Scatter Plot');
+                    % Add tracks to plot
+                    for n = 1:length(track_list)
+                        % Scatter plot if false alarm
+                        if (track_list{n}.false_alarm && showFalseAlarms)
+                            scatter(track_list{n}.det_list(2,:), ...
+                                track_list{n}.det_list(1,:), ...
+                                30, 'r', '+');
+                            hold on;
+                            % Line of track if not
+                        else
+                            scatter(track_list{n}.det_list(2,:), ...
+                                track_list{n}.det_list(1,:), ...
+                                30, track_list{n}.det_list(3,:)', '.');
+                            hold on;
+                            if showTracks
+                                plot(track_list{n}.est_list(3,:), ...
+                                    track_list{n}.est_list(1,:), 'g');
+                                hold on;
+                            end
+                        end
+                    end
+                    % Add radar location to plot
+                    scatter(0, 0, 'filled', 'r', 'v');
+                    % Correct plot limits
+                    ax = gca;
+                    ax.XLim = [-ax.YLim(2)/2, ax.YLim(2)/2];
+                    grid on;
+                    c = colorbar;
+                    c.Label.String = 'Target Altitude [m]';
+                    c.Label.FontWeight = 'bold';
+                    % Add labels
+                    ylabel('Down Range Distance [m]', 'FontWeight', 'bold')
+                    xlabel('Cross Range Distance [m]', 'FontWeight', 'bold')
+            end
+        end
+        
+        function trackingOverlay(RadarScenario, imagePath, showFalseAlarms, showTracks)
             % Pass in variables
             track_list  = RadarScenario.multi.track_list;
             % Generate plot
-            figure('Name', 'Tracking Results Scatter Plot');
+            figure('Name', 'Tracking Results Map Overlay');
+            % Show image
+            img = imread(imagePath);
+            image('CData', img, 'XData', [-190 180], 'YData', [270 -19], ...
+                'AlphaData', 0.75);
+            hold on;
             % Add tracks to plot
             for n = 1:length(track_list)
                 % Scatter plot if false alarm
-                if track_list{n}.false_alarm
-                    scatter3(track_list{n}.det_list(1,:), ...
-                        track_list{n}.det_list(2,:), ...
-                        track_list{n}.det_list(3,:), ...
-                        'r', '+');
+                if (track_list{n}.false_alarm && showFalseAlarms)
+                    scatter(track_list{n}.det_list(2,:), ...
+                        track_list{n}.det_list(1,:), ...
+                        50, 'r', '+');
                     hold on;
                     % Line of track if not
                 else
-                    scatter3(track_list{n}.det_list(1,:), ...
-                        track_list{n}.det_list(2,:), ...
-                        track_list{n}.det_list(3,:), ...
-                        'k', '+');
+                    scatter(track_list{n}.det_list(2,:), ...
+                        track_list{n}.det_list(1,:), ...
+                        50, track_list{n}.det_list(3,:)', '.');
                     hold on;
-                    plot3(track_list{n}.est_list(1,:), ...
-                        track_list{n}.est_list(3,:), ...
-                        track_list{n}.est_list(5,:), ...
-                        'g');
-                    hold on;
+                    if showTracks
+                        plot(track_list{n}.est_list(3,:), ...
+                            track_list{n}.est_list(1,:), 'g');
+                        hold on;
+                    end
                 end
             end
             % Add radar location to plot
-            scatter3(0, 0, 0, 'filled', 'r');
+            scatter(0, 0, 'filled', 'r', 'v');
             % Correct plot limits
-            ax = gca;
-            ax.YLim = [-ax.XLim(2)/2, ax.XLim(2)/2];
-            ax.ZLim = [-ax.XLim(2)/2, ax.XLim(2)/2];
+            ylim([-25 275])
+            xlim([-150 150])
+            pbaspect([1 1 1])
+            grid on;
+            c = colorbar;
+            c.Label.String = 'Target Altitude [m]';
+            c.Label.FontWeight = 'bold';
             % Add labels
-            xlabel('Down Range Distance [m]', 'FontWeight', 'bold')
-            ylabel('Cross Range Distance [m]', 'FontWeight', 'bold')
-            zlabel('Altitude [m]', 'FontWeight', 'bold')
+            ylabel('Down Range Distance [m]', 'FontWeight', 'bold')
+            xlabel('Cross Range Distance [m]', 'FontWeight', 'bold')
+            
+            
         end
         
     end

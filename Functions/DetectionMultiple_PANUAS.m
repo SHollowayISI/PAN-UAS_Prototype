@@ -23,9 +23,6 @@ bw_cube = (detection.detect_cube_multi >= radarsetup.det_m);
 avg_cube = bw_cube .* (detection.pow_cube_multi ./ detection.detect_cube_multi);
 avg_cube(isnan(avg_cube)) = 0;
 
-% Sum over angle information
-rd_cube = sum(avg_cube, [3 4]);
-
 %% Determine Individual Object Coordinates
 
 % Find connected objects in R-D cube
@@ -56,8 +53,13 @@ for n = 1:length(regions)
         - detection.noise_pow;
     
     % Find angle of attack using AoA estimator
-    ant_slice = squeeze(cube.mimo_cube(round(ind(2)), round(ind(1)), :))';
-    [~, ang] = sim.AoA(ant_slice);
+%     ant_slice = squeeze(cube.mimo_cube(round(ind(2)), round(ind(1)), :))';
+%     [~, ang] = sim.AoA(ant_slice);
+
+    % Find angle of attack using centroid estimator
+    ang_slice = squeeze(cube.pow_cube(round(ind(2)), round(ind(1)), :, :));
+    ang(1) = sum(ang_slice .* cube.azimuth_axis', 'all') / sum(ang_slice, 'all');
+    ang(2) = sum(ang_slice .* cube.elevation_axis, 'all') / sum(ang_slice, 'all');
     
     % Correct TDM angle-doppler association
     if strcmp(radarsetup.mimo_type, 'TDM')

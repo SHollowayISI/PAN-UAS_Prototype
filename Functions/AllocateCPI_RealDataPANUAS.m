@@ -5,7 +5,8 @@ function [rx_sig] = AllocateCPI_RealDataPANUAS(scenario)
 %% Pull data from single CPI to be processed
 
 % Calculate slow time indexes to pull
-ch_start = (scenario.flags.cpi-1)*scenario.radarsetup.n_p + 1;
+start_cpi = scenario.radarsetup.cpi_fr * (scenario.flags.frame-1) + (scenario.flags.cpi-1);
+ch_start = start_cpi*scenario.radarsetup.n_p + 1;
 ch_ind = ch_start:(ch_start + scenario.radarsetup.n_p - 1);
 
 % Determine if end of data is reached

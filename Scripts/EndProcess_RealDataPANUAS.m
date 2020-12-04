@@ -18,7 +18,10 @@ toc
 %% Save Files and Figures
 
 % Establish file name
-save_name = [scenario.simsetup.file_in, '_', datestr(now, 'mmddyy_HHMM')];
+save_name = scenario.simsetup.file_in;
+if scenario.simsetup.save_date
+    save_name = [save_name, '_', datestr(now, 'mmddyy_HHMM')];
+end
 
 % Establish filepaths for saving
 mat_path = 'MAT Files\Scenario Objects\';
@@ -32,7 +35,7 @@ end
 % Save open figures if chosen
 if scenario.simsetup.save_figs
     for ftype = 1:length(scenario.simsetup.save_format.list)
-        SaveFigures(save_name, fig_path, scenario.simsetup.save_format.list{ftype});
+        SaveFigures("", fig_path, scenario.simsetup.save_format.list{ftype});
     end
 end
 

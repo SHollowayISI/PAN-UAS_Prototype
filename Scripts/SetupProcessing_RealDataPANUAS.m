@@ -18,7 +18,7 @@ save_format.list = {'.png'};
 % Radar simulation and processing setup
 scenario.simsetup = struct( ...
     ... % Data Processing Options
-    'file_in',      'drone_50m_dist_movingfastng_coming_1201_144846', ...         % Input data filename
+    'file_in',      'drone_100m_dist_movingfast_coming_1201_145125', ...         % Input data filename
     'in_path',      'Input Data\drone_5\', ...    % Input filepath
     'file_out',     'drone_5', ...                % Output figure filename
     ...
@@ -28,7 +28,9 @@ scenario.simsetup = struct( ...
     'cal_file',     '1125_25MHz_wall_phase', ...    % Name of calibration file to read/write
     ...
     ... % Simulation Properties
-    'num_frames',   1, ...                      % Number of radar frames to simulate
+    'par_cfar',     true, ...                   % Parallelize CFAR detection
+    ...
+    'num_frames',   8, ...                      % Number of radar frames to simulate
     'readout',      true, ...                   % Read out target data T/F
     ...
     'clear_cube',   false, ...
@@ -37,9 +39,18 @@ scenario.simsetup = struct( ...
     'alert_address', 'sholloway@intellisenseinc.com', ...
     ...                                         % Email address for status updates
     'save_format',  save_format, ...            % File types to save figures
-    'save_figs',    false, ...                  % Save figures T/F
+    'save_figs',    true, ...                  % Save figures T/F
+    'save_date',    false, ...                  % Include date in file savename
     'save_mat',     false, ...                  % Save mat file T/F
     'reduce_mat',   false);                     % Reduce mat file for saving
+
+%% Start Parallel Pool
+
+if scenario.simsetup.par_cfar
+    if(isempty(gcp('nocreate')))
+        parpool;
+    end
+end
 
 
 

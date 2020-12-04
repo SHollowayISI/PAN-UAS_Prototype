@@ -8,6 +8,7 @@ function [detection] = DetectionSingle_PANUAS(scenario)
 detection = scenario.detection;
 radarsetup = scenario.radarsetup;
 cube = scenario.cube;
+flags = scenario.flags;
 
 %% Perform Detection
 
@@ -76,7 +77,7 @@ detection.detect_cube(:,:,:,size(cube.pow_cube, 4)) = detection.detect_cube(:,:,
 %% Update Multiple CPI List
 
 % Initialize multi-frame arrays if not created
-if isempty(detection.detect_cube_multi)
+if flags.cpi == 1
     detection.detect_cube_multi = zeros(size(detection.detect_cube));
     detection.pow_cube_multi = zeros(size(cube.pow_cube));
 end

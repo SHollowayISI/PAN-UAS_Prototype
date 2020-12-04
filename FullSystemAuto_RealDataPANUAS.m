@@ -7,7 +7,7 @@
 
     This shell file runs successive scripts and gauges progress.
 
-    TODO: 
+    TODO:
     - Implement
     - Break Main into loop
     - Comment data format in Parsing script
@@ -29,36 +29,54 @@ close all
 addpath(genpath(pwd));
 tic
 
-%% Initialize Scenario Object
+%% Obtain input files
 
-% Initialization
-scenario = RadarScenario_RealDataPANUAS;
-
-%% Setup Structures for Simulation
-
-% Set up simulation parameters
-SetupSimulation_RealDataPANUAS
-
-% Set up transceiver and channel parameters
-SetupRadarScenario_RealDataPANUAS
-
-%% Run Simulation & Signal Processing
-
-if scenario.simsetup.calibrate
-    % Return corner reflector calibration information
-    Calibrate_RealDataPANUAS
-else
-    % Perform main processes of simulation, signal and data processing
-    Main_RealDataPANUAS
+fold = dir('Input Data/drone_5');
+k = 1;
+for i = 1:length(fold)
+    if not(fold(i).isdir)
+        files{k} = fold(i).name(1:end-4);
+        k = k+1;
+    end
 end
 
-%% Save and Package Resultant Data
-
-% Run all end-of-simulation tasks
-EndSimulationSingle_PANUAS
-
-%DEBUG: OUTPUT PLOTS
-Scratch2
+for file_loop = 1:length(files)
+    
+    %% Initialize Scenario Object
+    
+    % Initialization
+    scenario = RadarScenario_RealDataPANUAS;
+    
+    %% Setup Structures for Simulation
+    
+    % Set up simulation parameters
+    SetupProcessing_RealDataPANUAS
+    
+    % Modify filename input
+    scenario.simsetup.file_in = files{file_loop};
+    
+    % Set up transceiver and channel parameters
+    SetupRadarScenario_RealDataPANUAS
+    
+    %% Run Simulation & Signal Processing
+    
+    if scenario.simsetup.calibrate
+        % Return corner reflector calibration information
+        Calibrate_RealDataPANUAS
+    else
+        % Perform main processes of simulation, signal and data processing
+        Main_RealDataPANUAS
+    end
+    
+    %% Save and Package Resultant Data
+    
+    % Run all end-of-simulation tasks
+    EndProcess_RealDataPANUAS
+    
+    % Close figures
+    close all;
+    
+end
 
 
 

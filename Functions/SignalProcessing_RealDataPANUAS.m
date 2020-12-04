@@ -1,4 +1,4 @@
-function [cube] = SignalProcessing_PANUAS(scenario)
+function [cube] = SignalProcessing_RealDataPANUAS(scenario)
 %SIGNALPROCESSING_PANUAS Performs signal processing for PANUAS
 %   Takes scenario struct as input, retuns scenario.cube struct containing
 %   processed Range-Doppler cube
@@ -7,6 +7,7 @@ function [cube] = SignalProcessing_PANUAS(scenario)
 
 radarsetup = scenario.radarsetup;
 simsetup = scenario.simsetup;
+flags = scenario.flags;
 
 %% Define Constants
 
@@ -140,6 +141,13 @@ cube.angle_cube(:,:,:,(end+1)) = cube.angle_cube(:,:,:,1);
 
 % Take square magnitude of radar cube
 cube.pow_cube = abs(cube.angle_cube).^2;
+
+% Save incoherently integrated radar data
+if flags.cpi == 1
+    cube.incoherent_cube = cube.pow_cube / radarsetup.cpi_fr;
+else
+    cube.incoherent_cube = scenario.cube.incoherent_cube + cube.pow_cube / radarsetup.cpi_fr;
+end
 
 % Clear angle cube
 if simsetup.clear_cube

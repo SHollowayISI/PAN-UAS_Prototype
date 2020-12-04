@@ -11,11 +11,15 @@ FigList = findobj(allchild(0), 'flat', 'Type', 'figure');
 for iFig = 1:length(FigList)
     FigHandle = FigList(iFig);
     FigName   = get(FigHandle, 'Name');
-    saveas(FigHandle, fullfile(fig_path, [save_name, '_', FigName, format]));
+    if save_name == ""
+        saveas(FigHandle, fullfile(fig_path, [FigName, format]));
+    else
+        saveas(FigHandle, fullfile(fig_path, [save_name, '_', FigName, format]));
+    end
 end
 
 % Display update to command window
-disp([format, ' Figures saved in ', save_name]);
+disp([format, ' Figures saved in ', fig_path]);
 
 end
 

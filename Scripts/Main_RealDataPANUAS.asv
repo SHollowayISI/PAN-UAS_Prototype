@@ -100,10 +100,9 @@ end
 %% Visualization
 
 % Plot range-doppler heatmap
-viewIncoherentCube(scenario, 'heatmap', 300);
+viewIncoherentCube(scenario, 'heatmap');
 
-% Plot doppler swaths
-viewDopplerSwath(scenario, [3 30], 300);
+% Plot 
 
 % Plot tracked targets
 viewTracking(scenario, 'PPI', false, false);
