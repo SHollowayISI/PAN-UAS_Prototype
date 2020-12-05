@@ -16,9 +16,6 @@
 % Return rx signal in format fast time x slow time x tx-ch x rx-ch
 scenario = DataParsing_RealDataPANUAS(scenario);
 
-%DEBUG: FIX BIT FLIP
-% scenario.parsed_data(:,:,:,11) = mod(scenario.parsed_data(:,:,:,11) + 2^11, 2^12) - 2^11;
-
 %% Signal Processing
 
 % Perform signal processing on received signal

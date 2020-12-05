@@ -48,7 +48,7 @@ while not(scenario.flags.out_of_data)
         %% Single CPI Data Processing
         
         % Perform single-frame radar detection
-        if scenario.simsetup.par_cfar
+        if (scenario.simsetup.par_cfar && strcmp(scenario.radarsetup.detect_type, 'CFAR'))
             scenario.detection = DetectionSingle_Parallel_PANUAS(scenario);
         else
             scenario.detection = DetectionSingle_PANUAS(scenario);
@@ -86,9 +86,6 @@ while not(scenario.flags.out_of_data)
     
     % Update multi-target tracking system
     scenario.multi = Tracking_PANUAS(scenario);
-    
-    % Clear detection information
-    
     
     % Break loop if final frame
     if scenario.flags.frame == scenario.simsetup.num_frames

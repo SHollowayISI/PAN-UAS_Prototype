@@ -21,7 +21,17 @@ detection.detect_cube = zeros(size(cube.pow_cube));
 % Determine angle slices to sweep
 az_list = intersect(find(scenario.cube.azimuth_axis >= radarsetup.az_limit(1)), find(scenario.cube.azimuth_axis <= radarsetup.az_limit(2)));
 el_list = intersect(find(scenario.cube.elevation_axis >= radarsetup.el_limit(1)), find(scenario.cube.elevation_axis <= radarsetup.el_limit(2)));
+     
+% Set up index map
+rng_ax = intersect(find(cube.range_axis >= radarsetup.rng_limit(1)), ...
+    find(cube.range_axis <= radarsetup.rng_limit(2)));
+rng_ax = rng_ax(rng_ax >  (radarsetup.num_guard(1) + radarsetup.num_train(1)));
+dop_ax = intersect(find(abs(cube.vel_axis) >= radarsetup.vel_limit(1)), ...
+    find(abs(cube.vel_axis) <= radarsetup.vel_limit(2)));
 
+idx = [];
+idx(1,:) = repmat(rng_ax, 1, length(dop_ax));
+idx(2,:) = reshape(repmat(dop_ax, length(rng_ax), 1), 1, []);
 
 % Loop across angle slices
 for az_slice = az_list
@@ -37,21 +47,10 @@ for az_slice = az_list
                 abs_thresh = db2pow(radarsetup.thresh + detection.noise_pow);
                 
                 % Perform detection
-                detection.detect_cube = (cube.pow_cube > abs_thresh);
+                detection.detect_cube(rng_ax,dop_ax,az_slice,el_slice) = (rd_cube(rng_ax,dop_ax) > abs_thresh);
                 
             case 'CFAR'
                 %% Perform CFAR Detection
-                
-                % Set up index map
-                rng_ax = intersect(find(cube.range_axis >= radarsetup.rng_limit(1)), ...
-                    find(cube.range_axis <= radarsetup.rng_limit(2)));
-                rng_ax = rng_ax(rng_ax >  (radarsetup.num_guard(1) + radarsetup.num_train(1)));
-                dop_ax = intersect(find(abs(cube.vel_axis) >= radarsetup.vel_limit(1)), ...
-                    find(abs(cube.vel_axis) <= radarsetup.vel_limit(2)));
-                
-                idx = [];
-                idx(1,:) = repmat(rng_ax, 1, length(dop_ax));
-                idx(2,:) = reshape(repmat(dop_ax, length(rng_ax), 1), 1, []);
                 
                 % Perform CFAR detection
                 cfar_out = scenario.sim.CFAR(rd_cube, idx);

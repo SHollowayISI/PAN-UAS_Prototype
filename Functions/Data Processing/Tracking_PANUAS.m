@@ -125,80 +125,9 @@ for de = ind
     
 end
 
-%{
-
-tracking contains multi.track_list and active_list
-
-tracking.multi.track_list{n} fields:
-    hits
-    misses
-    false_alarm
-    kinematic_prediction
-    kinematic_uncertainty
-    measurement_coords
-    estimate_list
-    
-Required parameters:
-    max_misses
-    min_hits_fa
-    
-%}
-
-%{
-TODO
-
-1. Loop through existing tracks
-foreach tracking.multi.track_list{active_list}
-    SWITCH Detections in area:
-        CASE 0
-            miss++
-            if miss > max_miss
-                track.state = end
-                if length == 1
-                    track.false_alarm = true
-        CASE 1
-            track.measure_coords = detect.coords
-            detect.associated = true
-            miss = 0
-        CASE >2
-            track.measure_coords = argmin(dist(detect.coords)).coords
-            detect.associated = true
-            miss = 0
-
-2. Loop through unassociated detections
-    foreach detection in detect_list{frame}
-        multi.track_list{end+1} = new track
-
-%}
 
 %% Kalman Filtering
 
-%{
-TODO
-
-Pass in:
-    Measurement position
-    Kinematic prediction
-    Uncertainty prediction
-    Time step size
-
-Return out:
-    Kinematic estimate
-    Kinematic prediction
-    Uncertainty prediction
-
-Required parameters:
-    sigma_z [3]
-    sigma_v [3]
-    smooth  [3] (???)
-
-- Compute Kalman estimation for every active track
-    - Pass in correct time step for missed tracks
-    - Pass in type of Kalman filter?
-- Save estimates to kalman_uncertainty, kalman_prediction, and
-estimate_list
-
-%}
 
 % Loop through active tracks and update Kalman tracking
 for tr = hit_list

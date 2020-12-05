@@ -23,7 +23,7 @@ scenario.radarsetup = struct( ...
     'bw',           100e6, ...              % Chirp bandwidth in Hz
     'n_p',          512, ...               % Number of (MIMO) chirps per CPI
     'drop_s',       125, ...                % Number of samples to drop
-    'cpi_fr',       1, ...                  % Number of CPI per frame
+    'cpi_fr',       8, ...                  % Number of CPI per frame
     'warmup_s',     10000, ...              % Number of samples to drop at beginning of file
     'data_type',    'int16', ...            % Input value data type
     'mimo_type',    'TDM', ...              % Set 'TDM' or 'CDM'
@@ -47,14 +47,15 @@ scenario.radarsetup = struct( ...
     ...
     ... % Detection Properties
     'detect_type',  'CFAR', ...         % Choose 'CFAR' or 'threshold'
-    'CFAR_Pfa',     1e-9, ...            % CFAR false alarm probability
+    'thresh',       20, ...             % Threshold detection threshold in dB
+    'CFAR_Pfa',     1e-9, ...           % CFAR false alarm probability
     'num_guard',    [3 3], ...          % Number of R-D guard cells for CFAR detection
     'num_train',    [15 15], ...        % Number of R-D training cells for CFAR detection
     'rng_limit',    [0 300], ...        % Minimum/maximum range to search
     'vel_limit',    [0 30], ...         % Minimum/maximum absolute value of velocity
     'az_limit',     [-15 15], ...       % Maximum angle to search in azimuth
     'el_limit',     [0 30.1], ...       % Maximum angle to search in elevation
-    'dilate',       false, ...           % T/F dilate raw CFAR result to avoid duplicates 
+    'dilate',       false, ...          % T/F dilate raw CFAR result to avoid duplicates 
     'dil_bins',     3, ...              % Length of CFAR dilation
     'det_m',        1);                 % M for m-of-n binary integration
 

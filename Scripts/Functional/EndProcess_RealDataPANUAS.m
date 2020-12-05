@@ -25,7 +25,7 @@ end
 
 % Establish filepaths for saving
 mat_path = 'MAT Files\Scenario Objects\';
-fig_path = ['Figures\', save_name, '\'];
+fig_path = ['Figures\', scenario.simsetup.file_out, '\' save_name, '\'];
 
 % Save scenario object if chosen
 if scenario.simsetup.save_mat
@@ -34,6 +34,11 @@ end
 
 % Save open figures if chosen
 if scenario.simsetup.save_figs
+    
+    if ~exist(fig_path, 'dir')
+        mkdir(fig_path)
+    end
+    
     for ftype = 1:length(scenario.simsetup.save_format.list)
         SaveFigures("", fig_path, scenario.simsetup.save_format.list{ftype});
     end

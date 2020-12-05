@@ -278,7 +278,7 @@ classdef RadarScenario_RealDataPANUAS < handle
         
         function viewDopplerSwath(scenario, dopplerMinMax, maxRange)
             figure('Name', 'Zero Doppler Range Plot Broadside');
-            plot(scenario.cube.range_axis, 10*log10(scenario.cube.pow_cube(:, ceil(end/2), ceil(end/2), ceil(end/2))));
+            plot(scenario.cube.range_axis, 10*log10(scenario.cube.incoherent_cube(:, ceil(end/2), ceil(end/2), ceil(end/2))));
             xlabel('Range [m]','FontWeight','bold');
             ylabel('FFT Log Intensity [dB]','FontWeight','bold');
             grid on;
@@ -290,7 +290,7 @@ classdef RadarScenario_RealDataPANUAS < handle
                 find(abs(scenario.cube.vel_axis) <= dopplerMinMax(2)));
             
             figure('Name', 'Non-Zero Doppler Swath Plot Broadside');
-            plot(scenario.cube.range_axis, 10*log10(mean(scenario.cube.pow_cube(:, dop_ind, ceil(end/2), ceil(end/2)), 2)));
+            plot(scenario.cube.range_axis, 10*log10(mean(scenario.cube.incoherent_cube(:, dop_ind, ceil(end/2), ceil(end/2)), 2)));
             xlabel('Range [m]','FontWeight','bold');
             ylabel('FFT Log Intensity [dB]','FontWeight','bold');
             grid on;

@@ -89,7 +89,7 @@ end
 S = H * (P_pre * H') + R;
 
 % Kalman matrix
-K = P_pre * H' * inv(S);
+K = P_pre * H' / S;
 
 % Estimated kinematic vector
 kin_est = X_pre + K * Z_res;
