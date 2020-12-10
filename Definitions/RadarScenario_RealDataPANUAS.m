@@ -23,6 +23,8 @@ classdef RadarScenario_RealDataPANUAS < handle
             % Initialize structure of target list
             RadarScenario.multi.detect_list = {};
             
+            RadarScenario.multi.static_list = {};
+            
             RadarScenario.multi.track_list = {};
             
             RadarScenario.multi.active_tracks = [];
@@ -462,11 +464,18 @@ classdef RadarScenario_RealDataPANUAS < handle
             end
         end
         
-        function trackingOverlay(RadarScenario, imagePath, showFalseAlarms, showTracks)
+        function trackingOverlay(RadarScenario, imagePath, showFalseAlarms, showTracks, showStatic)
             % Pass in variables
             track_list  = RadarScenario.multi.track_list;
+            static_list = RadarScenario.multi.static_list;
             % Generate plot
-            figure('Name', 'Tracking Results Map Overlay');
+            if showStatic
+                figure('Name', 'Tracking Results Map Overlay with Static Detections', ...
+                    'units', 'normalized', 'outerposition', [0 0 1 1]);
+            else
+                figure('Name', 'Tracking Results Map Overlay', ...
+                    'units', 'normalized', 'outerposition', [0 0 1 1]);                
+            end
             % Show image
             img = imread(imagePath);
             image('CData', img, 'XData', [-190 180], 'YData', [270 -19], ...
@@ -478,21 +487,45 @@ classdef RadarScenario_RealDataPANUAS < handle
                 if (track_list{n}.false_alarm && showFalseAlarms)
                     scatter(track_list{n}.det_list(2,:), ...
                         track_list{n}.det_list(1,:), ...
-                        50, 'r', '+');
+                        50, 'r', '.');
                     hold on;
                     % Line of track if not
                 else
-                    scatter(track_list{n}.det_list(2,:), ...
-                        track_list{n}.det_list(1,:), ...
-                        50, track_list{n}.det_list(3,:)', '.');
-                    hold on;
-                    if showTracks
-                        plot(track_list{n}.est_list(3,:), ...
-                            track_list{n}.est_list(1,:), 'g');
+                    if (showTracks && (size(track_list{n}.est_list, 2) > 1))
+                         plot([track_list{n}.est_list(3,:), track_list{n}.kin_pre(3)], ...
+                            [track_list{n}.est_list(1,:), track_list{n}.kin_pre(1)], ...
+                            'r', 'LineWidth', 2);
+                        hold on;
+                        diff_y = track_list{n}.kin_pre(3) - track_list{n}.est_list(3,end);
+                        diff_x = track_list{n}.kin_pre(1) - track_list{n}.est_list(1,end);
+                        ang = atan2d(-diff_y, -diff_x);
+                        len = 1;
+                        arrow(1,:) = [track_list{n}.kin_pre(3) + len*sind(ang - 30), ...
+                                      track_list{n}.kin_pre(3), ...
+                                      track_list{n}.kin_pre(3) + len*sind(ang + 30)];
+                        arrow(2,:) = [track_list{n}.kin_pre(1) + len*cosd(ang - 30), ...
+                                      track_list{n}.kin_pre(1), ...
+                                      track_list{n}.kin_pre(1) + len*cosd(ang + 30)];
+                        plot(arrow(1,:), arrow(2,:), 'r', 'LineWidth', 2);
+                        
+                    end
+                end                
+            end
+            
+            if showStatic
+                for n = 1:length(static_list)
+                    % Scatter plot for static targets
+                    for m = 1:length(static_list{n}.SNR)
+                        alpha = max(min((static_list{n}.SNR(m) / 50), 1), 0);
+                        scatter(static_list{n}.cart(2,m), ...
+                            static_list{n}.cart(1,m), ...
+                            10, static_list{n}.cart(3,m)', ...
+                            'filled', 'MarkerFaceAlpha', alpha, 'MarkerEdgeAlpha', alpha);
                         hold on;
                     end
                 end
             end
+            
             % Add radar location to plot
             scatter(0, 0, 'filled', 'r', 'v');
             % Correct plot limits
@@ -508,8 +541,7 @@ classdef RadarScenario_RealDataPANUAS < handle
             xlabel('Cross Range Distance [m]', 'FontWeight', 'bold')
             
             
-        end
-        
+        end        
     end
 end
 

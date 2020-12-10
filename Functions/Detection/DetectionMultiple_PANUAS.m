@@ -63,20 +63,36 @@ for n = 1:length(regions)
     
     % Correct TDM angle-doppler association
     if strcmp(radarsetup.mimo_type, 'TDM')
-        detection.detect_list.az(end+1) = ang(1) - ...
-            interp1(offset_vel, offset_angle(:,1), detection.detect_list.vel(end), 'linear', 'extrap');
-        detection.detect_list.el(end+1) = ang(2) - ...
-            interp1(offset_vel, offset_angle(:,2), detection.detect_list.vel(end), 'linear', 'extrap');
+%         detection.detect_list.az(end+1) = ang(1) - ...
+%             interp1(offset_vel, offset_angle(:,1), detection.detect_list.vel(end), 'linear', 'extrap');
+%         detection.detect_list.el(end+1) = ang(2) - ...
+%             interp1(offset_vel, offset_angle(:,2), detection.detect_list.vel(end), 'linear', 'extrap');
+        ang_mod(1) = ang(1) - radarsetup.v_az_coeff * detection.detect_list.vel(end);
+        ang_mod(2) = ang(2) - radarsetup.v_el_coeff * detection.detect_list.vel(end);
+        detection.detect_list.az(end+1) = ang_mod(1);
+        detection.detect_list.el(end+1) = ang_mod(2);
     else
         detection.detect_list.az(end+1) = ang(1);
         detection.detect_list.el(end+1) = ang(2);
     end
     
-    % Store derived coordinates
-    detection.detect_list.cart(:,end+1) = detection.detect_list.range(end) * ...
-        [cosd(detection.detect_list.el(end)) * cosd(detection.detect_list.az(end)); ...
-        cosd(detection.detect_list.el(end)) * sind(detection.detect_list.az(end));
-        sind(detection.detect_list.el(end))];
+    % Remove detections out of search area
+    if (ang_mod(1) < radarsetup.az_limit(1)) || (ang_mod(1) > radarsetup.az_limit(2)) || (ang_mod(2) < radarsetup.el_limit(1)) || (ang_mod(2) > radarsetup.el_limit(2))
+        detection.detect_list.az(end) = [];
+        detection.detect_list.el(end) = [];
+        detection.detect_list.range(end) = [];
+        detection.detect_list.vel(end) = [];
+        detection.detect_list.SNR(end) = [];
+        detection.detect_list.num_detect = detection.detect_list.num_detect - 1;
+        
+    else
+    
+        % Store derived coordinates
+        detection.detect_list.cart(:,end+1) = detection.detect_list.range(end) * ...
+            [cosd(detection.detect_list.el(end)) * cosd(detection.detect_list.az(end)); ...
+            cosd(detection.detect_list.el(end)) * sind(detection.detect_list.az(end));
+            sind(detection.detect_list.el(end))];
+    end
     
 end
 

@@ -42,6 +42,11 @@ F = [F_1d, zeros(2), zeros(2); ...
     zeros(2), F_1d, zeros(2); ...
     zeros(2), zeros(2), F_1d];
 
+% Initialize uncertainty if this is first step
+if isempty(P_pre)
+    P_pre = Q;
+end
+
 % Measurement matrix and measurement residual
 if EKF
 

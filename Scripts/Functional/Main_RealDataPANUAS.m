@@ -72,7 +72,7 @@ while not(scenario.flags.out_of_data)
     end
     
     %% Multiple CPI Data Processing
-    
+        
     % Perform binary integration and coordinate determination
     scenario.detection = DetectionMultiple_PANUAS(scenario);
     
@@ -85,7 +85,7 @@ while not(scenario.flags.out_of_data)
     saveMulti(scenario);
     
     % Update multi-target tracking system
-    scenario.multi = Tracking_PANUAS(scenario);
+    scenario.multi = Tracking_PANUAS(scenario, scenario.flags.frame);
     
     % Break loop if final frame
     if scenario.flags.frame == scenario.simsetup.num_frames
@@ -97,16 +97,17 @@ end
 %% Visualization
 
 % Plot range-doppler heatmap
-viewIncoherentCube(scenario, 'heatmap', 300);
+% viewIncoherentCube(scenario, 'heatmap', 300);
 
 % Plot doppler swaths
-viewDopplerSwath(scenario, [3 30], 300);
+% viewDopplerSwath(scenario, [3 30], 300);
 
 % Plot tracked targets
-viewTracking(scenario, 'PPI', false, false);
+% viewTracking(scenario, 'PPI', false, false);
 
 % Plot tracked targets overlayed on map
-trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, false)
+trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, true, true)
+trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, true, false)
 
 
 

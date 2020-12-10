@@ -67,8 +67,8 @@ cube.rd_cube(:,(end+1),:,:) = cube.rd_cube(:,1,:,:);
 
 % Layout arrays
 %TODO: MOVE TO INPUT
-tx_layout = [4, 1; ...
-             3, 2];
+tx_layout = [1, 2; ...
+             3, 4];
 rx_layout = [16, 15, 14, 13; ...
              12, 11, 10,  9; ...
               8,  7,  6,  5; ...
@@ -95,6 +95,12 @@ for tz = 1:tx_z
         end
     end
 end
+
+%DEBUG: INTERPOLATE INTO BAD CHANNEL
+cube.mimo_cube(:,:,1,4) = (cube.mimo_cube(:,:,1,3) + cube.mimo_cube(:,:,1,5))/2;
+cube.mimo_cube(:,:,1,8) = (cube.mimo_cube(:,:,1,7) + cube.mimo_cube(:,:,2,8))/2;
+cube.mimo_cube(:,:,5,4) = (cube.mimo_cube(:,:,4,4) + cube.mimo_cube(:,:,6,4) + cube.mimo_cube(:,:,5,3) + cube.mimo_cube(:,:,5,5))/4;
+cube.mimo_cube(:,:,5,8) = (cube.mimo_cube(:,:,4,8) + cube.mimo_cube(:,:,6,8))/2;
 
 % Clear doppler cube
 if simsetup.clear_cube

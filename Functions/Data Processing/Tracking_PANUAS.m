@@ -1,4 +1,4 @@
-function [multi] = Tracking_PANUAS(scenario)
+function [multi] = Tracking_PANUAS(scenario, frame)
 %TRACKING_PANUAS Multi-Target Tracking system for PAN-UAS project
 %   Takes scenario object as input, returns modified multi object as child of
 %   scenario.
@@ -7,7 +7,6 @@ function [multi] = Tracking_PANUAS(scenario)
 %% Unpack Variables
 
 radarsetup = scenario.radarsetup;
-frame = scenario.flags.frame;
 multi = scenario.multi;
 
 %% Target-to-Track Association
@@ -15,6 +14,9 @@ multi = scenario.multi;
 % Initialize variables
 detect_ind_list = [];
 hit_list = [];
+multi.static_list{frame} = struct( ...
+    'cart',     [], ...
+    'SNR',      []);
 
 % Loop through all pre-existing tracks
 for tr = multi.active_tracks
@@ -84,7 +86,7 @@ for tr = multi.active_tracks
     % Set false alarm flag if too few hits
     multi.track_list{tr}.false_alarm = ...
         (multi.track_list{tr}.hits < radarsetup.tracking.max_hits_fa);
-        
+    
 end
 
 % Create list of non-associated indices
@@ -94,35 +96,46 @@ ind(detect_ind_list) = [];
 % Loop through non-associated detections
 for de = ind
     
-    % Pass coordinates from detection list
-    meas = struct( ...
-        'range',      multi.detect_list{frame}.range(de), ...
-        'az',         multi.detect_list{frame}.az(de), ...
-        'el',         multi.detect_list{frame}.el(de), ...
-        'vel',        multi.detect_list{frame}.vel(de), ...
-        'cart',       multi.detect_list{frame}.cart(:,de));
-    
-    % Construct kinematic uncertainty
-    kin_pre = [meas.cart'; zeros(1,3)];
-    kin_pre = kin_pre(:);
-    
-    % Create track with new detection
-    multi.track_list{end+1} = struct( ...
-        'hits',               1, ...
-        'misses',             0, ...
-        'false_alarm',        true, ...
-        'kin_pre',            kin_pre, ...
-        'unc_pre',            zeros(6), ...
-        'meas',               meas, ...
-        'det_list',           meas.cart, ...
-        'est_list',           []);
-    
-    % Update track lists
-    multi.active_tracks(end+1) = length(multi.track_list);
-    hit_list(end+1) = length(multi.track_list);
-    time_step(length(multi.track_list)) = 1;
-    
-    
+    % Track only targets above minimum absolute value velocity
+    if (abs(multi.detect_list{frame}.vel(de)) > radarsetup.tracking.min_vel)
+        
+        % Pass coordinates from detection list
+        meas = struct( ...
+            'range',      multi.detect_list{frame}.range(de), ...
+            'az',         multi.detect_list{frame}.az(de), ...
+            'el',         multi.detect_list{frame}.el(de), ...
+            'vel',        multi.detect_list{frame}.vel(de), ...
+            'cart',       multi.detect_list{frame}.cart(:,de));
+        
+        % Construct kinematic uncertainty
+        kin_pre = [meas.cart(1); meas.vel * cosd(meas.az) * cosd(meas.el); ...
+            meas.cart(2); meas.vel * sind(meas.az) * cosd(meas.el); ...
+            meas.cart(3); meas.vel * sind(meas.el)];
+        kin_pre = kin_pre(:);
+        
+        % Create track with new detection
+        multi.track_list{end+1} = struct( ...
+            'hits',               1, ...
+            'misses',             0, ...
+            'false_alarm',        true, ...
+            'kin_pre',            kin_pre, ...
+            'unc_pre',            [], ...
+            'meas',               meas, ...
+            'det_list',           meas.cart, ...
+            'est_list',           []);
+        
+        % Update track lists
+        multi.active_tracks(end+1) = length(multi.track_list);
+        hit_list(end+1) = length(multi.track_list);
+        time_step(length(multi.track_list)) = 1;
+        
+    else
+        
+        % Save static target to list
+        multi.static_list{frame}.cart(:,end+1) = multi.detect_list{frame}.cart(:,de);
+        multi.static_list{frame}.SNR(end+1) = multi.detect_list{frame}.SNR(de);
+        
+    end
 end
 
 

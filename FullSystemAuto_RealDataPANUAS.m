@@ -73,6 +73,8 @@ for file_loop = 1:length(files)
     % Run all end-of-simulation tasks
     EndProcess_RealDataPANUAS
     
+    disp(files{file_loop})
+    
     % Close figures
     close all;
     

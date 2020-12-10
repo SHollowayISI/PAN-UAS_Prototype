@@ -60,10 +60,10 @@ start_ind = start_ind(start_ind < stop_ind(end));
 % Throw out indices until starting on first Tx channel
 while true
     if Tx(1, start_ind(1) + ceil(n_s/2)) == 1
+        break
+    else
         start_ind(1) = [];
         stop_ind(1) = [];
-    else
-        break
     end
 end
 

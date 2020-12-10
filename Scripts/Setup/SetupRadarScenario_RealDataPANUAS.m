@@ -23,7 +23,7 @@ scenario.radarsetup = struct( ...
     'bw',           100e6, ...              % Chirp bandwidth in Hz
     'n_p',          512, ...               % Number of (MIMO) chirps per CPI
     'drop_s',       125, ...                % Number of samples to drop
-    'cpi_fr',       8, ...                  % Number of CPI per frame
+    'cpi_fr',       1, ...                  % Number of CPI per frame
     'warmup_s',     10000, ...              % Number of samples to drop at beginning of file
     'data_type',    'int16', ...            % Input value data type
     'mimo_type',    'TDM', ...              % Set 'TDM' or 'CDM'
@@ -44,6 +44,8 @@ scenario.radarsetup = struct( ...
     'd_win',        'blackmanharris', ...   % Window for doppler processing
     'az_win',       'hanning', ...          % Window for azimuth processing
     'el_win',       'hanning', ...          % Window for elevation processing
+    'v_az_coeff',   0, ...            % Velocity-azimuth coupling coefficient
+    'v_el_coeff',   -0.01871, ...           % Velocity-elevation coupling coefficient
     ...
     ... % Detection Properties
     'detect_type',  'CFAR', ...         % Choose 'CFAR' or 'threshold'
@@ -51,7 +53,7 @@ scenario.radarsetup = struct( ...
     'CFAR_Pfa',     1e-9, ...           % CFAR false alarm probability
     'num_guard',    [3 3], ...          % Number of R-D guard cells for CFAR detection
     'num_train',    [15 15], ...        % Number of R-D training cells for CFAR detection
-    'rng_limit',    [0 300], ...        % Minimum/maximum range to search
+    'rng_limit',    [0 270], ...        % Minimum/maximum range to search
     'vel_limit',    [0 30], ...         % Minimum/maximum absolute value of velocity
     'az_limit',     [-15 15], ...       % Maximum angle to search in azimuth
     'el_limit',     [0 30.1], ...       % Maximum angle to search in elevation
@@ -62,12 +64,13 @@ scenario.radarsetup = struct( ...
 tracking = struct( ...
     ...
     ... % Tracking properties
-    'dist_thresh',  Inf, ...            % Mahanalobis distance association threshold
-    'miss_max',     Inf, ...             % Number of misses required to inactivate track
-    'max_hits_fa',  0, ...              % Maximum number of hits for track to still be false alarm
+    'min_vel',      1, ...              % Minimum velocity required to track target
+    'dist_thresh',  10, ...            % Mahanalobis distance association threshold
+    'miss_max',     1, ...             % Number of misses required to inactivate track
+    'max_hits_fa',  2, ...              % Maximum number of hits for track to still be false alarm
     'EKF',          true, ...           % T/F use extended Kalman filter
     'sigma_v',      [4.5 4.5 4.5], ...        % XYZ target motion uncertainty
-    'sigma_z',      [0.5 0.5 0.5 1]);         % XYZnull or RAEV measurement uncertainty
+    'sigma_z',      [0.5 0.5 0.5 0.1]);         % XYZnull or RAEV measurement uncertainty
 
 scenario.radarsetup.tracking = tracking;
 
