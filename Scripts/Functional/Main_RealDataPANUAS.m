@@ -18,6 +18,9 @@ scenario = DataParsing_RealDataPANUAS(scenario);
 
 %% Main Loop
 
+%DEBUG: Initialize cube for saving
+save_cube = {};
+
 % Set up timing system
 timeStart(scenario);
 
@@ -62,6 +65,9 @@ while not(scenario.flags.out_of_data)
         % Read out estimated time of completion
         timeUpdate(scenario, 1, 'loops')
         
+        % Debug
+        loop = scenario.radarsetup.cpi_fr * (scenario.flags.frame-1) + scenario.flags.cpi;
+        save_cube{loop} = scenario.cube.pow_cube;
         
         %% End of loop processing
         
@@ -106,8 +112,8 @@ end
 % viewTracking(scenario, 'PPI', false, false);
 
 % Plot tracked targets overlayed on map
-trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, true, true)
-trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, true, false)
+% trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, true, true)
+% trackingOverlay(scenario, 'Resources/Google Maps/Street.png', false, true, false)
 
 
 
