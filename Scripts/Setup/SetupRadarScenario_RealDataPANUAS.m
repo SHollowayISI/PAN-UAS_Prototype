@@ -54,7 +54,7 @@ scenario.radarsetup = struct( ...
     'num_guard',    [3 3], ...          % Number of R-D guard cells for CFAR detection
     'num_train',    [15 15], ...        % Number of R-D training cells for CFAR detection
     'rng_limit',    [0 270], ...        % Minimum/maximum range to search
-    'vel_limit',    [0 30], ...         % Minimum/maximum absolute value of velocity
+    'vel_limit',    [1 30], ...         % Minimum/maximum absolute value of velocity
     'az_limit',     [-15 15], ...       % Maximum angle to search in azimuth
     'el_limit',     [0 30.1], ...       % Maximum angle to search in elevation
     'dilate',       false, ...          % T/F dilate raw CFAR result to avoid duplicates 

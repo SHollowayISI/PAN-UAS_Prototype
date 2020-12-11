@@ -20,7 +20,7 @@ scenario.simsetup = struct( ...
     ... % Data Processing Options
     'file_in',      'drone_150m_dist_movingfast_going_1201_145222', ...         % Input data filename
     'in_path',      'Input Data\drone_5\', ...    % Input filepath
-    'file_out',     'drone_5_microdoppler', ...                % Output figure filename
+    'file_out',     'drone_5_microdoppler_revised', ...                % Output figure filename
     ...
     ... % Calibration Options
     'calibrate',    false, ...                      % Perform calibration T/F
