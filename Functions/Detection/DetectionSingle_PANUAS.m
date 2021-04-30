@@ -26,8 +26,8 @@ el_list = intersect(find(scenario.cube.elevation_axis >= radarsetup.el_limit(1))
 rng_ax = intersect(find(cube.range_axis >= radarsetup.rng_limit(1)), ...
     find(cube.range_axis <= radarsetup.rng_limit(2)));
 rng_ax = rng_ax(rng_ax >  (radarsetup.num_guard(1) + radarsetup.num_train(1)));
-dop_ax = intersect(find(abs(cube.vel_axis) >= radarsetup.vel_limit(1)), ...
-    find(abs(cube.vel_axis) <= radarsetup.vel_limit(2)));
+dop_ax = intersect(find(cube.vel_axis >= radarsetup.vel_limit(1)), ...
+    find(cube.vel_axis <= radarsetup.vel_limit(2)));
 
 idx = [];
 idx(1,:) = repmat(rng_ax, 1, length(dop_ax));
@@ -58,7 +58,8 @@ for az_slice = az_list
                 
                 % Perform image dilation
                 if radarsetup.dilate
-                    se = strel('line', 3, 90);
+%                     se = strel('line', radarsetup.dil_bins, 90);
+                    se = strel('diamond', radarsetup.dil_bins);
                     cfar_out = imdilate(cfar_out, se);
                 end
                 

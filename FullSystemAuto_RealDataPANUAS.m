@@ -31,7 +31,7 @@ tic
 
 %% Obtain input files
 
-fold = dir('Input Data/drone_5');
+fold = dir('Input Data/noise_tests_3_50M');
 k = 1;
 for i = 1:length(fold)
     if not(fold(i).isdir)

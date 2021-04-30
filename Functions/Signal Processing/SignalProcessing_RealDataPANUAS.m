@@ -60,9 +60,6 @@ cube.rd_cube = fftshift(fft(cube.rd_cube, N_d, 2), 2);
 % Wrap max negative frequency and positive frequency
 cube.rd_cube(:,(end+1),:,:) = cube.rd_cube(:,1,:,:);
 
-
-%NOTE: CURRENTLY IN DEBUG MODE TO GET DATA FOR 10/12/2020 TEST
-%
 %% Rearrange MIMO Cube
 
 % Layout arrays
@@ -95,12 +92,6 @@ for tz = 1:tx_z
         end
     end
 end
-
-%DEBUG: INTERPOLATE INTO BAD CHANNEL
-cube.mimo_cube(:,:,1,4) = (cube.mimo_cube(:,:,1,3) + cube.mimo_cube(:,:,1,5))/2;
-cube.mimo_cube(:,:,1,8) = (cube.mimo_cube(:,:,1,7) + cube.mimo_cube(:,:,2,8))/2;
-cube.mimo_cube(:,:,5,4) = (cube.mimo_cube(:,:,4,4) + cube.mimo_cube(:,:,6,4) + cube.mimo_cube(:,:,5,3) + cube.mimo_cube(:,:,5,5))/4;
-cube.mimo_cube(:,:,5,8) = (cube.mimo_cube(:,:,4,8) + cube.mimo_cube(:,:,6,8))/2;
 
 % Clear doppler cube
 if simsetup.clear_cube

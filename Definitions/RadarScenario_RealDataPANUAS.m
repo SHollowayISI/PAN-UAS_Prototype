@@ -249,6 +249,18 @@ classdef RadarScenario_RealDataPANUAS < handle
                     xlabel('Velocity [m/s]','FontWeight','bold')
                     ylabel('Range [m]','FontWeight','bold')
                     ylim([0 maxRange])
+                case 'nonzerodoppler'
+                    data = 10*log10(RadarScenario.cube.incoherent_cube(:,:,ceil(end/2),ceil(end/2)));
+                    data(:, floor((end/2)-3):ceil((end/2)+3)) = median(data, 'all');
+                    figure('Name', 'Non-Zero Doppler Heat Map');
+                    imagesc(RadarScenario.cube.vel_axis, ...
+                        RadarScenario.cube.range_axis, ...
+                        data)
+                    title('Range-Doppler Heat Map')
+                    set(gca,'YDir','normal')
+                    xlabel('Velocity [m/s]','FontWeight','bold')
+                    ylabel('Range [m]','FontWeight','bold')
+                    ylim([0 maxRange])
                 case 'surface'
                     figure('Name', 'Range-Doppler Surface');
                     surf(RadarScenario.cube.vel_axis, ...
@@ -278,20 +290,22 @@ classdef RadarScenario_RealDataPANUAS < handle
             end
         end
         
-        function viewDopplerSwath(scenario, dopplerMinMax, maxRange)
-            figure('Name', 'Zero Doppler Range Plot Broadside');
+        function viewDopplerSwath(scenario, dopplerMinMax, maxRange, yLimits)
+            str = sprintf('Zero Doppler Range Plot %dm Max', maxRange);
+            figure('Name', str);
             plot(scenario.cube.range_axis, 10*log10(scenario.cube.incoherent_cube(:, ceil(end/2), ceil(end/2), ceil(end/2))));
             xlabel('Range [m]','FontWeight','bold');
             ylabel('FFT Log Intensity [dB]','FontWeight','bold');
             grid on;
             grid minor;
             xlim([0 maxRange])
-            ylim([80 160]);
+            ylim(yLimits);
             
             dop_ind = intersect(find(abs(scenario.cube.vel_axis) >= dopplerMinMax(1)), ...
                 find(abs(scenario.cube.vel_axis) <= dopplerMinMax(2)));
             
-            figure('Name', 'Non-Zero Doppler Swath Plot Broadside');
+            str = sprintf('Non-Zero Doppler Swath Plot %dm Max', maxRange);
+            figure('Name', str);
             plot(scenario.cube.range_axis, 10*log10(mean(scenario.cube.incoherent_cube(:, dop_ind, ceil(end/2), ceil(end/2)), 2)));
             xlabel('Range [m]','FontWeight','bold');
             ylabel('FFT Log Intensity [dB]','FontWeight','bold');

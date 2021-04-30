@@ -17,12 +17,12 @@ scenario.radarsetup = struct( ...
     ...
     ... % Waveform Properties
     'f_c',          5.8e9, ...              % Operating frequency in Hz
-    'f_s',          25e6, ...               % ADC sample frequency in Hz
+    'f_s',          50e6, ...               % ADC sample frequency in Hz
     't_ch',         50e-6, ...              % Chirp duration in seconds
     'pri',          55.5e-6, ...            % Interval between successive chirps
     'bw',           100e6, ...              % Chirp bandwidth in Hz
     'n_p',          512, ...               % Number of (MIMO) chirps per CPI
-    'drop_s',       125, ...                % Number of samples to drop
+    'drop_s',       250, ...                % Number of samples to drop
     'cpi_fr',       1, ...                  % Number of CPI per frame
     'warmup_s',     10000, ...              % Number of samples to drop at beginning of file
     'data_type',    'int16', ...            % Input value data type
@@ -50,27 +50,28 @@ scenario.radarsetup = struct( ...
     ... % Detection Properties
     'detect_type',  'CFAR', ...         % Choose 'CFAR' or 'threshold'
     'thresh',       20, ...             % Threshold detection threshold in dB
-    'CFAR_Pfa',     1e-9, ...           % CFAR false alarm probability
+    'CFAR_Pfa',     1e-4, ...           % CFAR false alarm probability
     'num_guard',    [3 3], ...          % Number of R-D guard cells for CFAR detection
     'num_train',    [15 15], ...        % Number of R-D training cells for CFAR detection
-    'rng_limit',    [0 270], ...        % Minimum/maximum range to search
-    'vel_limit',    [1 30], ...         % Minimum/maximum absolute value of velocity
-    'az_limit',     [-15 15], ...       % Maximum angle to search in azimuth
-    'el_limit',     [0 30.1], ...       % Maximum angle to search in elevation
+    'rng_limit',    [210 230], ...        % Minimum/maximum range to search
+    'vel_limit',    [5, 15], ...         % Minimum/maximum absolute value of velocity
+    'az_limit',     [-20 20], ...       % Maximum angle to search in azimuth
+    'el_limit',     [-30.1 30.1], ...       % Maximum angle to search in elevation
+    'snr_min',      15, ...             % Minimum SNR to keep detection
     'dilate',       false, ...          % T/F dilate raw CFAR result to avoid duplicates 
-    'dil_bins',     3, ...              % Length of CFAR dilation
+    'dil_bins',     5, ...              % Length of CFAR dilation
     'det_m',        1);                 % M for m-of-n binary integration
 
 tracking = struct( ...
     ...
     ... % Tracking properties
     'min_vel',      1, ...              % Minimum velocity required to track target
-    'dist_thresh',  10, ...            % Mahanalobis distance association threshold
+    'dist_thresh',  Inf, ...            % Mahanalobis distance association threshold
     'miss_max',     1, ...             % Number of misses required to inactivate track
-    'max_hits_fa',  2, ...              % Maximum number of hits for track to still be false alarm
+    'max_hits_fa',  1, ...              % Maximum number of hits for track to still be false alarm
     'EKF',          true, ...           % T/F use extended Kalman filter
-    'sigma_v',      [4.5 4.5 4.5], ...        % XYZ target motion uncertainty
-    'sigma_z',      [0.5 0.5 0.5 0.1]);         % XYZnull or RAEV measurement uncertainty
+    'sigma_v',      [10 10 1], ...        % XYZ target motion uncertainty
+    'sigma_z',      [0.9 deg2rad(7.5) deg2rad(7.5) 1]);         % XYZnull or RAEV measurement uncertainty
 
 scenario.radarsetup.tracking = tracking;
 
@@ -88,6 +89,10 @@ scenario.radarsetup.n_s = ...
 scenario.radarsetup.t_fr = ...
     scenario.radarsetup.t_ch * scenario.radarsetup.n_p * ...
     scenario.radarsetup.n_tx_y * scenario.radarsetup.n_tx_z;
+
+% Calculate range-doppler coupling for tracking filter
+scenario.radarsetup.tracking.RDCoupling = ...
+    scenario.radarsetup.f_c * scenario.radarsetup.t_ch / scenario.radarsetup.bw;
 
 %% Set up PAT objects
 

@@ -31,7 +31,7 @@ SetupRadarScenario_RealDataPANUAS
 
 %% Run Simulation & Signal Processing
 
-if scenario.simsetup.calibrate
+if scenario.simsetup.calibrate 
     % Return corner reflector calibration information
     Calibrate_RealDataPANUAS
 else
@@ -44,7 +44,7 @@ end
 % Run all end-of-simulation tasks
 EndProcess_RealDataPANUAS
 
-
+ 
 
 
 

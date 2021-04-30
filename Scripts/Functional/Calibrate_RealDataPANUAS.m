@@ -18,6 +18,10 @@ scenario = DataParsing_RealDataPANUAS(scenario);
 
 %% Signal Processing
 
+% Debug: Limit number of chirps
+frame_skip = 4;
+scenario.parsed_data = scenario.parsed_data(:,(frame_skip*scenario.radarsetup.n_p) + (1:scenario.radarsetup.n_p),:,:);
+
 % Perform signal processing on received signal
 scenario.cube = SignalProcessing_Calibration_RealDataPANUAS(scenario);
 

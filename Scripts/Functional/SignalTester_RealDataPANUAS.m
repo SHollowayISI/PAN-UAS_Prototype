@@ -9,11 +9,11 @@ addpath(genpath(pwd));
 
 warmup_s = 10000;
 
-n_s = 2500/2;
-drop_s = 250/2;
-% drop_s = 0;
+n_s = 2500;
+% drop_s = 250;
+drop_s = 0;
 
-off_s = 275/2;
+off_s = 275;
 
 num_channels = 16;
 data_type = 'int16';
@@ -23,7 +23,8 @@ num_chirps = Inf;
 
 %% Load .bin file
 
-read_filename = 'Input Data/drone_5/down_street_car_coming_1201_143839.bin';
+% read_filename = 'Input Data/New System/test_reflector_0413_103752.bin';
+read_filename = 'Input Data/noise_tests_2/noise_test_TX_off_RX_on_synthtrig_2GLP_RT_0423_163111.bin';
 sample_max = floor(4 * num_chirps * (n_s + off_s) + warmup_s);
 
 fileID = fopen(read_filename,'r');
@@ -123,8 +124,9 @@ toc
 
 close all;
 
+%
 % Time domain visual check
-plot_ind = 20;
+plot_ind = [1:10];
 for n = 1:4
     
     figure;
@@ -143,6 +145,31 @@ for n = 1:4
     str_title = sprintf('Tx%d', n);
     sgtitle(str_title)
 end
+%}
+
+%{
+% Frequency domain visual check
+plot_ind = [1 5];
+for n = 1:4
+    
+    figure;
+    
+    for m  = 1:16
+        
+        subplot(4,4,m)
+        plot(20*log10(abs(fftshift(fft(hanning(2250) .* parsed_data(251:end,plot_ind,n,m))))));
+        xlim([1125 2250]);
+%         ylim([-4000 4000]);
+        
+        str_title = sprintf('Rx%d', m);
+        title(str_title)
+        
+    end
+    
+    str_title = sprintf('Tx%d', n);
+    sgtitle(str_title)
+end
+%}
 
 % Outlier check
 %{

@@ -1,0 +1,5 @@
+50m away: 65m, 10m/s, 45dB
+100m away: 110m, 10m/s, 36dB
+150m away: 160m, 10m/s, 36dB
+circle_38: static
+circle_21: 36m, 6.5m/s, 50dB
